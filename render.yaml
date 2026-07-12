@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: legends-game-api
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm ci && npm run build:server
+    startCommand: npm run start -w @loce/server
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22.16.0
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_ORIGINS
+        sync: false
+      - key: INVITE_CODE
+        sync: false
+      - key: ENABLE_REGISTRATION
+        value: "true"
+      - key: DB_POOL_MAX
+        value: "5"
+      - key: RATE_LIMIT_MAX
+        value: "100"
+      - key: RATE_LIMIT_WINDOW
+        value: "1 minute"
+      - key: LOG_LEVEL
+        value: info
