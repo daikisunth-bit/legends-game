@@ -5,7 +5,7 @@ services:
     plan: free
     rootDir: .
     buildCommand: npm ci --no-audit --no-fund && npm run build:server
-    startCommand: npm run start -w @loce/server
+    startCommand: npm run start:production
     healthCheckPath: /health/live
     autoDeploy: true
     envVars:
@@ -31,3 +31,8 @@ services:
         value: "1 minute"
       - key: LOG_LEVEL
         value: info
+
+      - key: BOOTSTRAP_DB_RETRY_ATTEMPTS
+        value: "8"
+      - key: BOOTSTRAP_DB_RETRY_DELAY_MS
+        value: "2500"
