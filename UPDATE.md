@@ -1,13 +1,7 @@
-# วิธีอัปเดตผ่าน GitHub Web
+# วิธีอัปเดต M4 Sprint 2
 
-1. แตก ZIP
-2. เปิดโฟลเดอร์ `M4-S1-update`
-3. เข้า GitHub Repository เดิม
-4. Add file → Upload files
-5. ลากทุกอย่างภายใน `M4-S1-update` ขึ้น Repository
-6. Commit message: `Add M4 Sprint 1 skill priority core`
-7. Commit ไปที่ branch `main`
-8. รอ Render และ Cloudflare Auto Deploy
+1. อัปโหลดไฟล์ทั้งหมดภายในแพ็กเกจอัปเดตนี้ทับ Repository เดิมผ่าน GitHub Web
+2. Commit ข้อความ `Add M4 Sprint 2 energy and ultimate`
+3. รอ Render และ Cloudflare Pages Auto Deploy
 
-ไม่ต้องลบไฟล์เก่า และไม่ต้องตั้งค่า Environment Variable เพิ่ม
-Render จะรัน migration `009_m4_skill_loadouts.sql` อัตโนมัติก่อนเปิด Server
+ไม่ต้องลบไฟล์เก่า และไม่มี Database Migration ใหม่ใน Sprint นี้

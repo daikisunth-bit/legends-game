@@ -4,6 +4,7 @@ import {
   BATTLE_NODES,
   JOB_DEFINITIONS,
   MONSTERS,
+  ULTIMATE_BY_JOB,
   simulateBattle,
   type BattleStartResponse,
   type CombatStats,
@@ -89,11 +90,12 @@ export class GameService {
       const seed = randomInt(1, 2_147_483_647);
       const playerStats = this.buildPlayerStats(row);
       const prioritySkills = await this.skills.resolveForBattle(accountId,row.current_job_id,row.level);
+      const ultimate = row.level >= 30 ? ULTIMATE_BY_JOB[row.current_job_id] : undefined;
       const setup = {
         seed,
         tickLimit: 3000,
         units: [
-          { id:`player:${accountId}`, side:"player" as const, stats:playerStats, prioritySkills },
+          { id:`player:${accountId}`, side:"player" as const, stats:playerStats, prioritySkills, ...(ultimate ? { ultimate } : {}) },
           { id:`monster:${monster.id}`, side:"enemy" as const, stats:monster.stats }
         ]
       };
@@ -145,7 +147,8 @@ export class GameService {
       critRate:Math.min(50,5 + dex * .1),
       critDamage:150,
       spd:100 + dex * .5,
-      maxEnergy:100 + int * .5
+      maxEnergy:100 + int * .5,
+      energyGainMultiplier:1 + int * .001
     };
   }
 

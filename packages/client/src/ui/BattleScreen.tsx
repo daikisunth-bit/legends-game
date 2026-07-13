@@ -3,6 +3,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api/client.js";
 
 const sleep = (ms:number):Promise<void> => new Promise((resolve)=>window.setTimeout(resolve,ms));
+function formatEvent(event:BattleStartResponse["events"][number]):string {
+  const actor=event.actorId.startsWith("player")?"คุณ":"ศัตรู";
+  switch(event.type){
+    case"damage":return `Tick ${event.tick}: ${actor} ทำความเสียหาย ${event.amount ?? 0}${event.critical?" CRIT!":""}`;
+    case"heal":return `Tick ${event.tick}: ${actor} ฟื้นฟู ${event.amount ?? 0}${event.critical?" CRIT HEAL!":""}`;
+    case"energy_gain":return `Tick ${event.tick}: ${actor} ได้ Energy +${event.amount ?? 0} (${event.energyAfter ?? 0})`;
+    case"ultimate_ready":return `Tick ${event.tick}: Ultimate ของ ${actor} พร้อมใช้`;
+    case"ultimate_cast":return `Tick ${event.tick}: ${actor} ใช้ Ultimate ${event.skillId ?? ""}`;
+    default:return `Tick ${event.tick}: ${event.type}`;
+  }
+}
+
 
 export function BattleScreen({ node, onExit }:{ node:MapNodeSummary; onExit:()=>void }):React.JSX.Element {
   const [result,setResult] = useState<BattleStartResponse|null>(null);
@@ -13,7 +25,10 @@ export function BattleScreen({ node, onExit }:{ node:MapNodeSummary; onExit:()=>
   const autoRef = useRef(false);
   autoRef.current = auto;
 
-  const latestDamage = useMemo(()=>result?.events.filter((event)=>event.type==="damage").slice(-6) ?? [],[result]);
+  const latestEvents = useMemo(()=>result?.events.filter((event)=>["damage","heal","energy_gain","ultimate_ready","ultimate_cast"].includes(event.type)).slice(-10) ?? [],[result]);
+  const playerId = result?.setup.units.find((unit)=>unit.side==="player")?.id;
+  const playerEnergy = playerId ? (result?.events.filter((event)=>event.actorId===playerId&&event.energyAfter!==undefined).at(-1)?.energyAfter ?? 0) : 0;
+  const playerMaxEnergy = result?.setup.units.find((unit)=>unit.side==="player")?.stats.maxEnergy ?? 100;
 
   async function runBattle():Promise<void>{
     if(busy)return;
@@ -47,8 +62,9 @@ export function BattleScreen({ node, onExit }:{ node:MapNodeSummary; onExit:()=>
       {result && <>
         <h2 className={result.outcome==="victory"?"victory":"defeat"}>{result.outcome==="victory"?"ชัยชนะ":"พ่ายแพ้"}</h2>
         <p>เวลา {(result.ticksElapsed/10).toFixed(1)} วินาที · Seed {result.seed}</p>
+        <div className="energy-summary"><strong>Energy {playerEnergy}/{Math.floor(playerMaxEnergy)}</strong><div className="energy-track"><span style={{width:`${Math.min(100,(playerEnergy/playerMaxEnergy)*100)}%`}} /></div></div>
         <div className="reward-grid"><span>EXP +{result.rewards.exp}</span><span>Gold +{result.rewards.gold}</span><span>Item {result.rewards.itemIds.length}</span><span>Card {result.rewards.cardIds.length}</span></div>
-        <div className="battle-log">{latestDamage.map((event,index)=><small key={`${event.tick}-${index}`}>Tick {event.tick}: {event.actorId.startsWith("player")?"คุณ":"ศัตรู"} ทำความเสียหาย {event.amount}{event.critical?" CRIT!":""}</small>)}</div>
+        <div className="battle-log">{latestEvents.map((event,index)=><small key={`${event.tick}-${index}`}>{formatEvent(event)}</small>)}</div>
       </>}
       <div className="battle-actions"><button className="primary" disabled={busy} onClick={()=>void runBattle()}>{busy?"กำลังต่อสู้...":"สู้อีกครั้ง"}</button><label><input type="checkbox" checked={auto} onChange={(event)=>{stopRef.current=!event.target.checked;setAuto(event.target.checked);if(event.target.checked&&!busy)void runBattle();}}/> ต่อสู้อัตโนมัติ</label><button className="secondary" onClick={()=>{stopRef.current=true;setAuto(false);}}>หยุดออโต้</button></div>
     </section>
