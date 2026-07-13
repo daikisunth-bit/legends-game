@@ -1,14 +1,13 @@
-# วิธีอัปเดต M3 ผ่าน GitHub Web
+# วิธีอัปเดตผ่าน GitHub Web
 
-1. แตกไฟล์ ZIP นี้
-2. เปิดโฟลเดอร์ `M3-update`
-3. เข้า GitHub Repository ของเกม
-4. กด `Add file` → `Upload files`
-5. ลากทุกไฟล์และโฟลเดอร์ที่อยู่ข้างใน `M3-update` ไปวาง
-6. Commit message: `Add M3 character progression core`
-7. เลือก `Commit directly to main`
-8. กด `Commit changes`
-9. รอ Render และ Cloudflare Auto Deploy
+1. แตก ZIP
+2. เปิดโฟลเดอร์ `M4-S1-update`
+3. เข้า GitHub Repository เดิม
+4. Add file → Upload files
+5. ลากทุกอย่างภายใน `M4-S1-update` ขึ้น Repository
+6. Commit message: `Add M4 Sprint 1 skill priority core`
+7. Commit ไปที่ branch `main`
+8. รอ Render และ Cloudflare Auto Deploy
 
-ไม่ต้องลบไฟล์เก่า และไม่มีไฟล์ Secret ในชุดอัปเดตนี้
-Migration `008_m3_progression.sql` จะถูกรันอัตโนมัติเมื่อ Render เปิด Backend รุ่นใหม่
+ไม่ต้องลบไฟล์เก่า และไม่ต้องตั้งค่า Environment Variable เพิ่ม
+Render จะรัน migration `009_m4_skill_loadouts.sql` อัตโนมัติก่อนเปิด Server

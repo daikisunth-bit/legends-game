@@ -1,16 +1,19 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import {
   allocateStatsSchema, autosaveSchema, battleAckSchema, battleStartSchema, equipItemSchema,
-  enhanceItemSchema, mergeCardSchema, slotCardSchema, unequipItemSchema, unslotCardSchema
+  enhanceItemSchema, mergeCardSchema, saveSkillLoadoutSchema, slotCardSchema, unequipItemSchema, unslotCardSchema
 } from "@loce/shared";
 import type { Database } from "../infrastructure/database.js";
 import type { GameService } from "../services/game-service.js";
 import type { ProgressionService } from "../services/progression-service.js";
+import type { SkillService } from "../services/skill-service.js";
 const accountId=(request:FastifyRequest):string=>request.user.sub;
-export async function registerGameRoutes(app:FastifyInstance,database:Database,game:GameService,progression:ProgressionService):Promise<void>{
+export async function registerGameRoutes(app:FastifyInstance,database:Database,game:GameService,progression:ProgressionService,skills:SkillService):Promise<void>{
   app.get("/maps",{onRequest:[app.authenticate]},request=>game.mapContent(accountId(request)));
   app.get("/inventory",{onRequest:[app.authenticate]},request=>game.inventory(accountId(request)));
   app.get("/progression",{onRequest:[app.authenticate]},request=>progression.snapshot(accountId(request)));
+  app.get("/skills/loadout",{onRequest:[app.authenticate]},request=>skills.get(accountId(request)));
+  app.post("/skills/loadout",{onRequest:[app.authenticate]},request=>{const input=saveSkillLoadoutSchema.parse(request.body);return skills.save(accountId(request),input.slots);});
   app.get("/quests/daily",{onRequest:[app.authenticate]},request=>game.quests(accountId(request)));
   app.post("/items/equip",{onRequest:[app.authenticate]},request=>{const input=equipItemSchema.parse(request.body);return progression.equip(accountId(request),input.itemDbId);});
   app.post("/items/unequip",{onRequest:[app.authenticate]},request=>{const input=unequipItemSchema.parse(request.body);return progression.unequip(accountId(request),input.slot);});

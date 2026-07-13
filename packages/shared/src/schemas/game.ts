@@ -12,3 +12,5 @@ export const allocateStatsSchema=z.object({str:z.number().int().nonnegative().ma
 export const slotCardSchema=z.object({slotNo:z.number().int().min(1).max(6),cardId:z.string().min(1).max(96),rarity:z.enum(["common","uncommon","rare","epic","legendary"])}).strict();
 export const unslotCardSchema=z.object({slotNo:z.number().int().min(1).max(6)}).strict();
 export const mergeCardSchema=z.object({cardId:z.string().min(1).max(96),rarity:z.enum(["common","uncommon","rare","epic"]),idempotencyKey:z.string().uuid()}).strict();
+
+export const saveSkillLoadoutSchema=z.object({slots:z.array(z.string().min(1).max(96).nullable()).length(4)}).strict();

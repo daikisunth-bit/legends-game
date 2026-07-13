@@ -14,6 +14,7 @@ import {
 } from "@loce/shared";
 import type { Database } from "../infrastructure/database.js";
 import { AppError } from "../domain/errors.js";
+import type { SkillService } from "./skill-service.js";
 
 interface ActiveJobRow {
   current_job_id: PlayableJobId | null;
@@ -32,7 +33,7 @@ const EXP_POWER = 1.8;
 const expToNext = (level: number): number => Math.floor(EXP_BASE * level ** EXP_POWER);
 
 export class GameService {
-  constructor(private readonly database: Database) {}
+  constructor(private readonly database: Database, private readonly skills: SkillService) {}
 
   async inventory(accountId: string): Promise<readonly InventoryEntry[]> {
     const result = await this.database.query<{ id:string; item_id:string; rarity:InventoryEntry["rarity"]; enhance_level:number; equipped_slot:string|null }>(
@@ -87,11 +88,12 @@ export class GameService {
 
       const seed = randomInt(1, 2_147_483_647);
       const playerStats = this.buildPlayerStats(row);
+      const prioritySkills = await this.skills.resolveForBattle(accountId,row.current_job_id,row.level);
       const setup = {
         seed,
         tickLimit: 3000,
         units: [
-          { id:`player:${accountId}`, side:"player" as const, stats:playerStats },
+          { id:`player:${accountId}`, side:"player" as const, stats:playerStats, prioritySkills },
           { id:`monster:${monster.id}`, side:"enemy" as const, stats:monster.stats }
         ]
       };
@@ -110,7 +112,7 @@ export class GameService {
 
       await client.query(
         "INSERT INTO battles(battle_id,account_id,kind,node_id,seed,data_version,result,total_damage,acknowledged) VALUES($1,$2,'pve',$3,$4,$5,$6,$7,FALSE)",
-        [battleId,accountId,nodeId,seed,"0.4.0",JSON.stringify(response),this.totalPlayerDamage(result.events,accountId)]
+        [battleId,accountId,nodeId,seed,"0.6.0",JSON.stringify(response),this.totalPlayerDamage(result.events,accountId)]
       );
       if (victory) await this.applyRewards(client,accountId,battleId,row,exp,gold,itemIds,cardIds,monster.miniBoss);
       await client.query("INSERT INTO request_deduplication(account_id,idempotency_key,route,response) VALUES($1,$2,'/battle/start',$3)",[accountId,idempotencyKey,JSON.stringify(response)]);

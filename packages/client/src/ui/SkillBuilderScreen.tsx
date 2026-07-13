@@ -1,0 +1,15 @@
+import type { SkillCatalogEntry, SkillLoadoutResponse } from "@loce/shared";
+import { useEffect, useMemo, useState } from "react";
+import { api } from "../api/client.js";
+
+const EMPTY_SLOTS:readonly (string|null)[]=[null,null,null,null];
+export function SkillBuilderScreen({onBack}:{onBack:()=>void}):React.JSX.Element{
+ const [data,setData]=useState<SkillLoadoutResponse|null>(null);const [slots,setSlots]=useState<readonly(string|null)[]>(EMPTY_SLOTS);const [selected,setSelected]=useState(0);const [saving,setSaving]=useState(false);const [message,setMessage]=useState<string|null>(null);
+ useEffect(()=>{void api.request<SkillLoadoutResponse>("/skills/loadout").then(response=>{setData(response);setSlots(response.slots);});},[]);
+ const current=data?.currentJobId;const legal=useMemo(()=>data?.catalog.filter(skill=>skill.unlocked&&(selected>0||skill.jobId===current))??[],[data,current,selected]);
+ function assign(skill:SkillCatalogEntry):void{if(slots.includes(skill.id)){setMessage("สกิลนี้ถูกใช้ในช่องอื่นแล้ว");return;}const next=[...slots];next[selected]=skill.id;setSlots(next);setMessage(null);}
+ async function save():Promise<void>{setSaving(true);setMessage(null);try{const response=await api.request<SkillLoadoutResponse>("/skills/loadout",{method:"POST",body:JSON.stringify({slots})});setData(response);setSlots(response.slots);setMessage("บันทึกชุดสกิลแล้ว");}catch(error){setMessage(error instanceof Error?error.message:"บันทึกไม่สำเร็จ");}finally{setSaving(false);}}
+ return <main className="progression-screen"><header className="progression-header"><button onClick={onBack}>← กลับเมือง</button><div><h1>Skill Priority</h1><p>ระบบเลือก Ultimate จะเพิ่มใน Sprint ถัดไป · ตอนนี้ AI ใช้ P1 → P4 แล้วโจมตีปกติ</p></div></header>
+ <section className="skill-layout"><article className="parchment"><h2>Priority Slots</h2><div className="priority-slots">{slots.map((id,index)=>{const skill=data?.catalog.find(item=>item.id===id);return <button key={index} className={selected===index?"priority-slot selected":"priority-slot"} onClick={()=>setSelected(index)}><strong>P{index+1}</strong><span>{skill?.name??"ว่าง"}</span><small>{index===0?"เฉพาะอาชีพปัจจุบัน":"สกิลที่ปลดล็อกแล้ว"}</small></button>;})}</div><div className="skill-actions"><button className="secondary" onClick={()=>{const next=[...slots];next[selected]=null;setSlots(next);}}>ล้างช่องที่เลือก</button><button className="primary" disabled={saving} onClick={()=>void save()}>{saving?"กำลังบันทึก...":"บันทึกชุดสกิล"}</button></div>{message&&<p>{message}</p>}</article>
+ <article className="parchment"><h2>คลังสกิล</h2><p>เลือก P{selected+1} แล้วแตะสกิลเพื่อใส่</p><div className="skill-library">{legal.map(skill=><button key={skill.id} className="skill-card" disabled={!skill.executable} onClick={()=>assign(skill)}><strong>{skill.name}</strong><span>{skill.school} · CD {(skill.cooldownTicks/10).toFixed(1)}s</span><small>{skill.condition}</small>{!skill.executable&&<em>เอฟเฟกต์จะเปิดใน M4 Sprint 3</em>}</button>)}</div></article></section></main>;
+}

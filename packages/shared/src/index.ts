@@ -10,3 +10,4 @@ export * from "./data/maps.js";
 export * from "./version.js";
 export * from "./data/items.js";
 export * from "./data/cards.js";
+export * from "./data/skills.js";

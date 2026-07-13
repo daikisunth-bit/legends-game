@@ -14,6 +14,7 @@ import { registerAccountRoutes } from "./routes/account-routes.js";
 import { registerGameRoutes } from "./routes/game-routes.js";
 import { GameService } from "./services/game-service.js";
 import { ProgressionService } from "./services/progression-service.js";
+import { SkillService } from "./services/skill-service.js";
 import { AppError } from "./domain/errors.js";
 import { readSchemaStatus } from "./infrastructure/schema-status.js";
 import { APP_VERSION, DATA_VERSION, REQUIRED_SCHEMA_MIGRATION } from "@loce/shared";
@@ -78,6 +79,7 @@ export async function buildApp(config: ApiConfig): Promise<FastifyInstance> {
   app.get("/data/version", async () => ({ dataVersion: DATA_VERSION, appVersion: APP_VERSION }));
   await registerAuthRoutes(app, new AuthService(database, accounts, config.ENABLE_REGISTRATION, config.INVITE_CODE));
   await registerAccountRoutes(app, database, accounts, new JobTreeService());
-  await registerGameRoutes(app, database, new GameService(database), new ProgressionService(database));
+  const skills = new SkillService(database);
+  await registerGameRoutes(app, database, new GameService(database, skills), new ProgressionService(database), skills);
   return app;
 }

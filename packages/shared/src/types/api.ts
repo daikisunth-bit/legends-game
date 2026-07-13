@@ -42,3 +42,6 @@ export interface ProgressionResponse {
 }
 export interface EnhancementResponse { readonly success:boolean; readonly itemId:string; readonly previousLevel:number; readonly newLevel:number; readonly goldSpent:number; readonly goldRemaining:number; readonly deduplicated:boolean; }
 export interface CardMergeResponse { readonly cardId:string; readonly fromRarity:ItemRarity; readonly toRarity:ItemRarity; readonly quantityRemaining:number; readonly goldSpent:number; readonly goldRemaining:number; readonly deduplicated:boolean; }
+
+export interface SkillCatalogEntry { readonly id:string; readonly jobId:string; readonly name:string; readonly unlockLevel:number; readonly school:string; readonly cooldownTicks:number; readonly targeting:string; readonly condition:string; readonly unlocked:boolean; readonly executable:boolean; }
+export interface SkillLoadoutResponse { readonly currentJobId:string; readonly slots:readonly (string|null)[]; readonly catalog:readonly SkillCatalogEntry[]; }
