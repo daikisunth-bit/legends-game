@@ -63,3 +63,12 @@
 - `scripts/seed.mjs`
 - `scripts/cleanup-logs.mjs`
 - `scripts/load-test.js`
+
+## M2 additions
+- `.npmrc` and repaired `package-lock.json` public registry URLs.
+- `packages/shared/src/data/maps.ts`
+- Expanded battle API types and schemas.
+- Deterministic PvE battle service and routes.
+- `database/migrations/005_m2_pve_cards.sql`
+- `MapScreen.tsx`, `BattleScreen.tsx`, updated `TownScreen.tsx` and styles.
+- `docs/M2_STATUS.md`
