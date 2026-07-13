@@ -13,3 +13,5 @@ export * from "./data/cards.js";
 export * from "./data/skills.js";
 
 export * from "./data/ultimates.js";
+
+export * from "./data/passives.js";

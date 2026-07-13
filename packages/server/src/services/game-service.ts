@@ -5,6 +5,7 @@ import {
   JOB_DEFINITIONS,
   MONSTERS,
   ULTIMATE_BY_JOB,
+  PASSIVE_BY_JOB,
   simulateBattle,
   type BattleStartResponse,
   type CombatStats,
@@ -91,11 +92,12 @@ export class GameService {
       const playerStats = this.buildPlayerStats(row);
       const prioritySkills = await this.skills.resolveForBattle(accountId,row.current_job_id,row.level);
       const ultimate = row.level >= 30 ? ULTIMATE_BY_JOB[row.current_job_id] : undefined;
+      const passive = row.level >= 10 ? PASSIVE_BY_JOB[row.current_job_id] : undefined;
       const setup = {
         seed,
         tickLimit: 3000,
         units: [
-          { id:`player:${accountId}`, side:"player" as const, stats:playerStats, prioritySkills, ...(ultimate ? { ultimate } : {}) },
+          { id:`player:${accountId}`, side:"player" as const, stats:playerStats, prioritySkills, ...(ultimate ? { ultimate } : {}), ...(passive ? { passive } : {}) },
           { id:`monster:${monster.id}`, side:"enemy" as const, stats:monster.stats }
         ]
       };
@@ -114,7 +116,7 @@ export class GameService {
 
       await client.query(
         "INSERT INTO battles(battle_id,account_id,kind,node_id,seed,data_version,result,total_damage,acknowledged) VALUES($1,$2,'pve',$3,$4,$5,$6,$7,FALSE)",
-        [battleId,accountId,nodeId,seed,"0.6.0",JSON.stringify(response),this.totalPlayerDamage(result.events,accountId)]
+        [battleId,accountId,nodeId,seed,"0.8.0",JSON.stringify(response),this.totalPlayerDamage(result.events,accountId)]
       );
       if (victory) await this.applyRewards(client,accountId,battleId,row,exp,gold,itemIds,cardIds,monster.miniBoss);
       await client.query("INSERT INTO request_deduplication(account_id,idempotency_key,route,response) VALUES($1,$2,'/battle/start',$3)",[accountId,idempotencyKey,JSON.stringify(response)]);

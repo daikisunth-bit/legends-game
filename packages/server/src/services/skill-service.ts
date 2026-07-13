@@ -38,5 +38,5 @@ export class SkillService {
     if(!Array.isArray(raw))return [];
     return raw.flatMap(value=>{if(typeof value!=="string")return[];const skill=SKILL_BY_ID[value];return skill&&skill.unlockLevel<=level?[skill]:[];});
   }
-  private conditionLabel(condition:import("@loce/shared").SkillCondition):string{switch(condition.kind){case"always":return"ใช้เมื่อพร้อม";case"targetCountAtLeast":return`ศัตรูอย่างน้อย ${condition.value}`;case"selfHpAtMost":return`HP ตนเอง ≤ ${condition.value}%`;case"allyHpAtMost":return`HP พันธมิตร ≤ ${condition.value}%`;}}
+  private conditionLabel(condition:import("@loce/shared").SkillCondition):string{switch(condition.kind){case"always":return"ใช้เมื่อพร้อม";case"targetCountAtLeast":return`ศัตรูอย่างน้อย ${condition.value}`;case"selfHpAtMost":return`HP ตนเอง ≤ ${condition.value}%`;case"allyHpAtMost":return`HP พันธมิตร ≤ ${condition.value}%`;case"selfHasDebuff":return"ใช้เมื่อมีสถานะลบ";}}
 }

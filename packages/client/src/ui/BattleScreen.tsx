@@ -11,6 +11,12 @@ function formatEvent(event:BattleStartResponse["events"][number]):string {
     case"energy_gain":return `Tick ${event.tick}: ${actor} ได้ Energy +${event.amount ?? 0} (${event.energyAfter ?? 0})`;
     case"ultimate_ready":return `Tick ${event.tick}: Ultimate ของ ${actor} พร้อมใช้`;
     case"ultimate_cast":return `Tick ${event.tick}: ${actor} ใช้ Ultimate ${event.skillId ?? ""}`;
+    case"effect_apply":return `Tick ${event.tick}: ${event.skillId ?? "Effect"} เริ่มทำงาน (${event.durationTicks ?? 0} ticks)`;
+    case"effect_expire":return `Tick ${event.tick}: ${event.effectId ?? "Effect"} สิ้นสุด`;
+    case"dot_tick":return `Tick ${event.tick}: ${event.skillId ?? "DoT"} ทำความเสียหายต่อเนื่อง ${event.amount ?? 0}`;
+    case"hot_tick":return `Tick ${event.tick}: ${event.skillId ?? "HoT"} ฟื้นฟูต่อเนื่อง ${event.amount ?? 0}`;
+    case"cleanse":return `Tick ${event.tick}: ${actor} ล้างสถานะลบ ${event.amount ?? 0} รายการ`;
+    case"passive_apply":return `เริ่มการต่อสู้: Passive ${event.skillId ?? ""} ทำงาน`;
     default:return `Tick ${event.tick}: ${event.type}`;
   }
 }
@@ -25,7 +31,7 @@ export function BattleScreen({ node, onExit }:{ node:MapNodeSummary; onExit:()=>
   const autoRef = useRef(false);
   autoRef.current = auto;
 
-  const latestEvents = useMemo(()=>result?.events.filter((event)=>["damage","heal","energy_gain","ultimate_ready","ultimate_cast"].includes(event.type)).slice(-10) ?? [],[result]);
+  const latestEvents = useMemo(()=>result?.events.filter((event)=>["damage","heal","energy_gain","ultimate_ready","ultimate_cast","effect_apply","effect_expire","dot_tick","hot_tick","cleanse","passive_apply"].includes(event.type)).slice(-10) ?? [],[result]);
   const playerId = result?.setup.units.find((unit)=>unit.side==="player")?.id;
   const playerEnergy = playerId ? (result?.events.filter((event)=>event.actorId===playerId&&event.energyAfter!==undefined).at(-1)?.energyAfter ?? 0) : 0;
   const playerMaxEnergy = result?.setup.units.find((unit)=>unit.side==="player")?.stats.maxEnergy ?? 100;
