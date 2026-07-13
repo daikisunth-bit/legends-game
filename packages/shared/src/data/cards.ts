@@ -1,0 +1,13 @@
+import type { ItemRarity } from "./items.js";
+export type CardStat = "maxHp"|"patk"|"matk"|"def"|"spd"|"hit"|"flee"|"critRate"|"critDamage"|"expGainPct"|"goldGainPct"|"energyGainPct"|"healingDealtPct"|"allPrimaryPct";
+export interface CardDefinition { readonly id:string; readonly name:string; readonly stat:CardStat; readonly base:number; }
+export const CARD_RARITY_MULTIPLIER:Readonly<Record<ItemRarity,number>>={common:1,uncommon:2,rare:3.5,epic:6,legendary:10};
+export const CARD_MERGE_FEES:Readonly<Record<ItemRarity,number>>={common:0,uncommon:500,rare:2000,epic:8000,legendary:25000};
+export const CARDS:Readonly<Record<string,CardDefinition>>={
+ green_slime:{id:"green_slime",name:"Green Slime",stat:"maxHp",base:15},fluffbit:{id:"fluffbit",name:"Fluffbit",stat:"expGainPct",base:1},wild_boar:{id:"wild_boar",name:"Wild Boar",stat:"patk",base:2},sporeling:{id:"sporeling",name:"Sporeling",stat:"matk",base:2},plains_wolf:{id:"plains_wolf",name:"Plains Wolf",stat:"spd",base:1},alpha_direwolf:{id:"alpha_direwolf",name:"Alpha Direwolf",stat:"patk",base:1},
+ forest_spider:{id:"forest_spider",name:"Forest Spider",stat:"patk",base:1},poison_toad:{id:"poison_toad",name:"Poison Toad",stat:"def",base:3},treant_sapling:{id:"treant_sapling",name:"Treant Sapling",stat:"maxHp",base:25},hornet:{id:"hornet",name:"Hornet",stat:"critRate",base:.5},bandit_scout:{id:"bandit_scout",name:"Bandit Scout",stat:"goldGainPct",base:1},elder_treant:{id:"elder_treant",name:"Elder Treant",stat:"maxHp",base:1},
+ canyon_vulture:{id:"canyon_vulture",name:"Canyon Vulture",stat:"flee",base:2},rock_golem:{id:"rock_golem",name:"Rock Golem",stat:"def",base:1},fire_imp:{id:"fire_imp",name:"Fire Imp",stat:"matk",base:3},sand_scorpion:{id:"sand_scorpion",name:"Sand Scorpion",stat:"hit",base:2},canyon_raider:{id:"canyon_raider",name:"Canyon Raider",stat:"patk",base:3},magma_golem:{id:"magma_golem",name:"Magma Golem",stat:"matk",base:1},
+ frost_wolf:{id:"frost_wolf",name:"Frost Wolf",stat:"spd",base:1.5},ice_elemental:{id:"ice_elemental",name:"Ice Elemental",stat:"energyGainPct",base:1},yeti_youngling:{id:"yeti_youngling",name:"Yeti Youngling",stat:"maxHp",base:40},harpy:{id:"harpy",name:"Harpy",stat:"critDamage",base:1},frost_revenant:{id:"frost_revenant",name:"Frost Revenant",stat:"healingDealtPct",base:1},frost_wyrm:{id:"frost_wyrm",name:"Frost Wyrm",stat:"allPrimaryPct",base:.5}
+};
+export const CARD_RARITIES=["common","uncommon","rare","epic","legendary"] as const;
+export function nextCardRarity(rarity:ItemRarity):ItemRarity|null{const i=CARD_RARITIES.indexOf(rarity);return i<0||i===CARD_RARITIES.length-1?null:CARD_RARITIES[i+1]!;}

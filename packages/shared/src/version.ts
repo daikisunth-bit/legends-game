@@ -1,3 +1,3 @@
-export const APP_VERSION = "0.4.6";
-export const DATA_VERSION = "m2.6-data-v1";
-export const REQUIRED_SCHEMA_MIGRATION = "007_m26_one_click_deploy.sql";
+export const APP_VERSION = "0.5.0";
+export const DATA_VERSION = "m3-progression-v1";
+export const REQUIRED_SCHEMA_MIGRATION = "008_m3_progression.sql";

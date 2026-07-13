@@ -8,3 +8,5 @@ export * from "./schemas/auth.js";
 export * from "./schemas/game.js";
 export * from "./data/maps.js";
 export * from "./version.js";
+export * from "./data/items.js";
+export * from "./data/cards.js";

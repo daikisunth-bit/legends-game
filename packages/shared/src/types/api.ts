@@ -1,3 +1,4 @@
+import type { ItemRarity } from "../data/items.js";
 import type { BattleEvent, BattleOutcome, BattleSetup } from "../combat/types.js";
 import type { MapId, MonsterId } from "../data/maps.js";
 
@@ -29,3 +30,15 @@ export interface BattleStartResponse {
   readonly rewards: BattleRewards;
   readonly checksum: string;
 }
+
+export interface CardInventoryEntry { readonly cardId:string; readonly rarity:ItemRarity; readonly qty:number; readonly slotNo:number|null; }
+export interface ActiveJobProgression { readonly jobId:string; readonly level:number; readonly exp:number; readonly unspentPoints:number; readonly stats:{readonly str:number;readonly dex:number;readonly con:number;readonly int:number}; }
+export interface ProgressionResponse {
+  readonly gold:number;
+  readonly inventoryCap:number;
+  readonly items:readonly InventoryEntry[];
+  readonly cards:readonly CardInventoryEntry[];
+  readonly activeJob:ActiveJobProgression;
+}
+export interface EnhancementResponse { readonly success:boolean; readonly itemId:string; readonly previousLevel:number; readonly newLevel:number; readonly goldSpent:number; readonly goldRemaining:number; readonly deduplicated:boolean; }
+export interface CardMergeResponse { readonly cardId:string; readonly fromRarity:ItemRarity; readonly toRarity:ItemRarity; readonly quantityRemaining:number; readonly goldSpent:number; readonly goldRemaining:number; readonly deduplicated:boolean; }
