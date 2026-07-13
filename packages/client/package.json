@@ -1,6 +1,6 @@
 {
   "name": "@loce/client",
-  "version": "0.3.0",
+  "version": "0.4.5",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
     "test": "node --test"
   },
   "dependencies": {
-    "@loce/shared": "0.3.0",
+    "@loce/shared": "0.4.5",
     "phaser": "^3.90.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

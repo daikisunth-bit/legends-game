@@ -270,3 +270,50 @@ DATABASE_URL_DIRECT='YOUR_DIRECT_NEON_URL' npm run db:cleanup
 - Push เข้า `main` ทำให้ Cloudflare Pages และ Render Build ใหม่อัตโนมัติ
 - แนะนำใช้ Pull Request และให้ GitHub Actions รัน `npm run verify` ก่อน Merge
 - ห้าม Merge เมื่อ Type Check, Lint, Test หรือ Build ไม่ผ่าน
+
+---
+
+## อัปเดต M2.5: ใช้ GitHub ผ่านเว็บไซต์เท่านั้น
+
+เจ้าของโปรเจกต์ไม่ได้ใช้ GitHub Desktop และไม่จำเป็นต้องรันคำสั่งในเครื่อง
+
+อ่านขั้นตอนอัปโหลดแบบทีละคลิกที่:
+
+- `README-GITHUB-WEB-TH.md`
+
+### Migration ผ่าน GitHub Actions
+
+หลังอัปโหลด M2.5 ให้ทำดังนี้:
+
+1. GitHub Repository → **Settings**
+2. **Secrets and variables** → **Actions**
+3. เพิ่ม Secret ชื่อ `DATABASE_URL_DIRECT`
+4. ไปแท็บ **Actions**
+5. เลือก **Run Neon migrations**
+6. กด **Run workflow**
+
+ไม่ต้องเปิด PowerShell และไม่ต้องติดตั้ง Node.js ในเครื่อง
+
+### Health endpoints M2.5
+
+- Render Health Check: `/health/live`
+- ตรวจ Backend + Neon + Migration: `/health`
+- Strict readiness: `/health/ready`
+
+ถ้า `/health` แสดง `schema: outdated` ให้รัน GitHub Action **Run Neon migrations**
+
+### Cloudflare Pages M2.5
+
+Build Command:
+
+```text
+npm ci --no-audit --no-fund && npm run build:client
+```
+
+Build Output Directory:
+
+```text
+packages/client/dist
+```
+
+M2.5 มี `package-lock.json` ที่ใช้ Public npm Registry แล้ว ไม่ต้องลบไฟล์นี้ และไม่ต้องใช้ `SKIP_DEPENDENCY_INSTALL`

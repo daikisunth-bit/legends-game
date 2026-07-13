@@ -33,5 +33,5 @@ export function App(): React.JSX.Element {
         ? <StarterJobSelection onComplete={() => void refresh()} />
         : <TownScreen bootstrap={bootstrap} onRefresh={() => void refresh()} onLogout={() => { api.setToken(null); setAuthenticated(false); setBootstrap(null); }} />;
 
-  return <><BackendStatus state={backend.state} onRetry={backend.retry} />{content}</>;
+  return <><BackendStatus state={backend.state} details={backend.details} onRetry={backend.retry} />{content}</>;
 }

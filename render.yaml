@@ -4,9 +4,9 @@ services:
     runtime: node
     plan: free
     rootDir: .
-    buildCommand: npm ci && npm run build:server
+    buildCommand: npm ci --no-audit --no-fund && npm run build:server
     startCommand: npm run start -w @loce/server
-    healthCheckPath: /health
+    healthCheckPath: /health/live
     autoDeploy: true
     envVars:
       - key: NODE_VERSION

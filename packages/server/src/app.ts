@@ -14,6 +14,8 @@ import { registerAccountRoutes } from "./routes/account-routes.js";
 import { registerGameRoutes } from "./routes/game-routes.js";
 import { GameService } from "./services/game-service.js";
 import { AppError } from "./domain/errors.js";
+import { readSchemaStatus } from "./infrastructure/schema-status.js";
+import { APP_VERSION, DATA_VERSION, REQUIRED_SCHEMA_MIGRATION } from "@loce/shared";
 
 declare module "fastify" { interface FastifyInstance { authenticate(request: FastifyRequest, reply: FastifyReply): Promise<void>; } }
 declare module "@fastify/jwt" { interface FastifyJWT { payload: { sub: string }; user: { sub: string }; } }
@@ -41,12 +43,38 @@ export async function buildApp(config: ApiConfig): Promise<FastifyInstance> {
     request.log.error({ err: error }, "unhandled request error");
     return reply.code(500).send({ code: "error.internal", requestId: request.id, retryable: true });
   });
-  app.get("/health", async (_request, reply) => {
-    const up = await database.healthCheck();
-    if (!up) reply.code(503);
-    return { status: up ? "ok" : "degraded", database: up ? "up" : "down", version: "0.3.0", timestamp: new Date().toISOString() };
+  app.get("/health/live", async () => ({ status: "ok", version: APP_VERSION, timestamp: new Date().toISOString() }));
+  app.get("/health", async () => {
+    const databaseUp = await database.healthCheck();
+    const schemaStatus = databaseUp
+      ? await readSchemaStatus(database.pool, REQUIRED_SCHEMA_MIGRATION)
+      : { current: false, latestApplied: null };
+    const ready = databaseUp && schemaStatus.current;
+    return {
+      status: ready ? "ok" : "degraded",
+      database: databaseUp ? "up" : "down",
+      schema: databaseUp ? (schemaStatus.current ? "current" : "outdated") : "unknown",
+      version: APP_VERSION,
+      dataVersion: DATA_VERSION,
+      requiredMigration: REQUIRED_SCHEMA_MIGRATION,
+      timestamp: new Date().toISOString()
+    };
   });
-  app.get("/data/version", async () => ({ dataVersion: "0.3.0" }));
+  app.get("/health/ready", async (_request, reply) => {
+    const databaseUp = await database.healthCheck();
+    const schemaStatus = databaseUp
+      ? await readSchemaStatus(database.pool, REQUIRED_SCHEMA_MIGRATION)
+      : { current: false, latestApplied: null };
+    if (!databaseUp || !schemaStatus.current) reply.code(503);
+    return {
+      status: databaseUp && schemaStatus.current ? "ok" : "degraded",
+      database: databaseUp ? "up" : "down",
+      schema: databaseUp ? (schemaStatus.current ? "current" : "outdated") : "unknown",
+      requiredMigration: REQUIRED_SCHEMA_MIGRATION,
+      timestamp: new Date().toISOString()
+    };
+  });
+  app.get("/data/version", async () => ({ dataVersion: DATA_VERSION, appVersion: APP_VERSION }));
   await registerAuthRoutes(app, new AuthService(database, accounts, config.ENABLE_REGISTRATION, config.INVITE_CODE));
   await registerAccountRoutes(app, database, accounts, new JobTreeService());
   await registerGameRoutes(app, database, new GameService(database));
