@@ -1,16 +1,13 @@
-# วิธีอัปเดต M4 Sprint 3 + Sprint 4
+# Render TypeScript Build Fix
 
-1. แตก ZIP
-2. เปิดโฟลเดอร์ `M4-S3-S4-update`
-3. อัปโหลดทุกไฟล์และโฟลเดอร์ด้านในไปยัง GitHub Repository เดิม
-4. Commit ไปที่ branch `main` ด้วยข้อความ `Complete M4 status effects and combat polish`
-5. รอ Render และ Cloudflare Pages Auto Deploy
+อัปโหลดไฟล์ `render.yaml` ทับไฟล์เดิมใน GitHub Repository แล้ว Commit ไปที่ `main`.
 
-## ต้องลบไฟล์เก่าหรือไม่
-ไม่ต้องลบไฟล์เก่า
+สาเหตุ: Render ตั้ง `NODE_ENV=production` ทำให้ npm ไม่ติดตั้ง devDependencies ซึ่งมี `typescript` และ `@types/pg`.
 
-## Database Migration
-ไม่มี Migration ใหม่ในอัปเดตนี้
+การแก้ไข: Build command เปลี่ยนเป็น:
 
-## Environment Variables
-ไม่มีตัวแปรใหม่
+```text
+npm ci --include=dev --no-audit --no-fund && npm run build:server
+```
+
+หลัง Commit ให้รอ Render Auto Deploy หรือกด Manual Deploy > Deploy latest commit.
